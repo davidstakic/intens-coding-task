@@ -1,7 +1,5 @@
 package com.example.intens.service;
 
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,28 +28,21 @@ public class SkillService {
 		
 		repository.save(skill);
 		
-		return SkillDTO.builder()
-				.name(dto.getName())
-				.build();
+		return mapToDTO(skill);
 	}
 	
 	public SkillDTO getById(Long id) {
 		Skill skill = repository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Skill not found with ID " + id));
 		
-		return SkillDTO.builder()
-				.name(skill.getName())
-				.build();
+		return mapToDTO(skill);
 	}
 	
-	public Page<SkillDTO> searchByName(String name, int page, int size) {
+	public Page<SkillDTO> search(String name, int page, int size) {
 	    Pageable pageable = PageRequest.of(page, size);
 	    Page<Skill> skills = repository.findByNameContainingIgnoreCase(name, pageable);
 
-	    return skills.map(skill -> SkillDTO.builder()
-	                                      .id(skill.getId())
-	                                      .name(skill.getName())
-	                                      .build());
+	    return skills.map(this::mapToDTO);
 	}
 	
 	public SkillDTO update(UpdateSkillDTO dto) {
@@ -61,9 +52,7 @@ public class SkillService {
 		skill.setName(dto.getName());
 		repository.save(skill);
 		
-		return SkillDTO.builder()
-				.name(dto.getName())
-				.build();
+		return mapToDTO(skill);
 		
 	}
 	
@@ -73,5 +62,12 @@ public class SkillService {
 		
 		repository.delete(skill);
 	}
+	
+	private SkillDTO mapToDTO(Skill skill) {
+        return SkillDTO.builder()
+                       .id(skill.getId())
+                       .name(skill.getName())
+                       .build();
+    }
 	
 }

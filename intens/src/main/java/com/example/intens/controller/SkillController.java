@@ -45,7 +45,7 @@ public class SkillController {
 	        @RequestParam String name,
 	        @RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size) {
-	    return ResponseEntity.ok(service.searchByName(name, page, size));
+	    return ResponseEntity.ok(service.search(name, page, size));
 	}
 	
 	@PutMapping
