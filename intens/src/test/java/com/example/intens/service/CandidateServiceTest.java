@@ -17,6 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.example.intens.dto.CandidateDTO;
 import com.example.intens.dto.CreateCandidateDTO;
@@ -43,7 +47,7 @@ public class CandidateServiceTest {
 	
 	@Test
     @DisplayName("Should create candidate when DTO is valid")
-    void shouldCreateCandidateWithValidDto() {
+    public void shouldCreateCandidateWithValidDto() {
         Skill skill = Skill.builder().id(1L).name("C++").build();
         when(skillRepository.findAllById(Set.of(1L))).thenReturn(List.of(skill));
         when(candidateRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -67,7 +71,7 @@ public class CandidateServiceTest {
 
     @Test
     @DisplayName("Should get candidate when id is valid")
-    void shouldGetCandidateByIdWithValidId() {
+    public void shouldGetCandidateByIdWithValidId() {
         Candidate candidate = Candidate.builder()
                 .id(1L)
                 .firstName("Zinedine")
@@ -85,15 +89,38 @@ public class CandidateServiceTest {
 
     @Test
     @DisplayName("Should throw exception when id is invalid")
-    void shouldNotGetCandidateByIdWithInvalidId() {
+    public void shouldNotGetCandidateByIdWithInvalidId() {
         when(candidateRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.getById(99L));
     }
+    
+    @Test
+    @DisplayName("Should search candidates with pagination")
+    public void shouldSearchCandidates() {
+        Candidate candidate = Candidate.builder()
+                .id(1L)
+                .firstName("Romelu")
+                .lastName("Lukaku")
+                .email("lukaku@gmail.com")
+                .skills(Set.of())
+                .build();
+
+        Page<Candidate> page = new PageImpl<>(List.of(candidate));
+
+        when(candidateRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+        Page<CandidateDTO> result = service.search("David", "", 0, 10);
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Romelu", result.getContent().get(0).getFirstName());
+
+        verify(candidateRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
 
     @Test
     @DisplayName("Should update candidate when DTO is valid")
-    void shouldUpdateCandidateWithValidDto() {
+    public void shouldUpdateCandidateWithValidDto() {
         Candidate existing = Candidate.builder()
                 .id(1L)
                 .firstName("Diego")
@@ -127,7 +154,7 @@ public class CandidateServiceTest {
 
     @Test
     @DisplayName("Should throw exception when updating candidate with invalid id")
-    void shouldNotUpdateCandidateWithInvalidId() {
+    public void shouldNotUpdateCandidateWithInvalidId() {
         UpdateCandidateDTO dto = UpdateCandidateDTO.builder()
                 .id(99L)
                 .firstName("Robert")
@@ -142,7 +169,7 @@ public class CandidateServiceTest {
 
     @Test
     @DisplayName("Should delete candidate when id is valid")
-    void shouldDeleteCandidateWithValidId() {
+    public void shouldDeleteCandidateWithValidId() {
         Candidate candidate = Candidate.builder().id(1L).build();
         when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
 
@@ -153,7 +180,7 @@ public class CandidateServiceTest {
 
     @Test
     @DisplayName("Should throw exception when deleting candidate with invalid id")
-    void shouldNotDeleteCandidateWithInvalidId() {
+    public void shouldNotDeleteCandidateWithInvalidId() {
         when(candidateRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.delete(99L));

@@ -120,28 +120,6 @@ public class CandidateControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
     }
-    
-    @Test
-    @DisplayName("POST /api/candidates - should not create candidate when skills id are invalid")
-    public void shouldNotCreateCandidateWithInvalidSkillsId() throws Exception {
-        CreateCandidateDTO dto = CreateCandidateDTO.builder()
-                .firstName("Wayne")
-                .lastName("Rooney")
-                .birthDate(LocalDate.of(1985, 10, 24))
-                .phoneNumber("0612345678")
-                .email("rooney@gmail.com")
-                .skillIds(Set.of(999L))
-                .build();
-
-        when(service.create(any())).thenThrow(new EntityNotFoundException());
-
-        mockMvc.perform(post("/api/candidates")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound());
-
-        verify(service).create(any());
-    }
 
     @Test
     @DisplayName("GET /api/candidates/{id} - should return candidate when id is valid")

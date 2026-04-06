@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.example.intens.dto.CreateSkillDTO;
 import com.example.intens.dto.SkillDTO;
@@ -64,6 +68,27 @@ public class SkillServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> service.getById(99L));
     }
+	
+	@Test
+	@DisplayName("Should search skills with pagination")
+	public void shouldSearchSkillsWithPagination() {
+	    Skill skill = Skill.builder()
+	                       .id(1L)
+	                       .name("COBOL")
+	                       .build();
+
+	    Page<Skill> page = new PageImpl<>(List.of(skill));
+
+	    when(repository.findByNameContainingIgnoreCase("COBOL", PageRequest.of(0, 10)))
+	        .thenReturn(page);
+
+	    Page<SkillDTO> result = service.search("COBOL", 0, 10);
+
+	    assertEquals(1, result.getTotalElements());
+	    assertEquals("COBOL", result.getContent().get(0).getName());
+
+	    verify(repository).findByNameContainingIgnoreCase("COBOL", PageRequest.of(0, 10));
+	}
 	
 	@Test
     @DisplayName("Should update skill when DTO is valid")
