@@ -57,14 +57,10 @@ public class CandidateService {
         Candidate candidate = candidateRepository.findByIdWithSkills(id)
                 .orElseThrow(() -> new EntityNotFoundException("Candidate not found with id " + id));
         
-        System.out.println("Skills size: " + candidate.getSkills().size());
-        candidate.getSkills().forEach(s -> System.out.println("Skill: " + s.getId() + " - " + s.getName()));
-
         return mapToDTO(candidate);
     }
     
     public Page<CandidateDTO> search(String name, String skill, int page, int size) {
-    	System.out.println("NAME PARAM: '" + name + "'");
         Pageable pageable = PageRequest.of(page, size);
 
         Specification<Candidate> spec = Specification

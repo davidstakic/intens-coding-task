@@ -79,7 +79,7 @@ public class CandidateServiceTest {
                 .skills(Set.of())
                 .build();
 
-        when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
+        when(candidateRepository.findByIdWithSkills(1L)).thenReturn(Optional.of(candidate));
 
         CandidateDTO dto = service.getById(1L);
 
@@ -90,7 +90,7 @@ public class CandidateServiceTest {
     @Test
     @DisplayName("Should throw exception when id is invalid")
     public void shouldNotGetCandidateByIdWithInvalidId() {
-        when(candidateRepository.findById(99L)).thenReturn(Optional.empty());
+        when(candidateRepository.findByIdWithSkills(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.getById(99L));
     }
