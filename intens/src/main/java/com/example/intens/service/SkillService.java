@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.intens.dto.CreateSkillDTO;
 import com.example.intens.dto.SkillDTO;
@@ -33,7 +34,7 @@ public class SkillService {
 	
 	public SkillDTO getById(Long id) {
 		Skill skill = repository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Skill not found with ID " + id));
+				.orElseThrow(() -> new EntityNotFoundException("Skill not found with id " + id));
 		
 		return mapToDTO(skill);
 	}
@@ -47,7 +48,7 @@ public class SkillService {
 	
 	public SkillDTO update(UpdateSkillDTO dto) {
 		Skill skill = repository.findById(dto.getId())
-				.orElseThrow(() -> new EntityNotFoundException("Skill not found with ID " + dto.getId()));
+				.orElseThrow(() -> new EntityNotFoundException("Skill not found with id " + dto.getId()));
 		
 		skill.setName(dto.getName());
 		repository.save(skill);
@@ -56,11 +57,14 @@ public class SkillService {
 		
 	}
 	
+	@Transactional
 	public void delete(Long id) {
-		Skill skill = repository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Skill not found with ID " + id));
-		
-		repository.delete(skill);
+	    Skill skill = repository.findById(id)
+	            .orElseThrow(() -> new EntityNotFoundException("Skill not found with id " + id));
+
+	    repository.deleteSkillRelations(id);
+
+	    repository.delete(skill);
 	}
 	
 	private SkillDTO mapToDTO(Skill skill) {

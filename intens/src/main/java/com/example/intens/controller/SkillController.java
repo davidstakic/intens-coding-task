@@ -2,6 +2,7 @@ package com.example.intens.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,20 +28,20 @@ public class SkillController {
     
 
     @Operation(summary = "Create a new skill")
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SkillDTO> create(@Valid @RequestBody CreateSkillDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
     @Operation(summary = "Get skill by id")
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SkillDTO> getById(
             @Parameter(description = "Skill id") @PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @Operation(summary = "Search skills by name with pagination")
-    @GetMapping("/search")
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<SkillDTO>> search(
             @Parameter(description = "Skill name") @RequestParam String name,
             @Parameter(description = "Page number") @RequestParam(defaultValue = "0") int page,
@@ -50,7 +51,7 @@ public class SkillController {
     }
 
     @Operation(summary = "Update existing skill")
-    @PutMapping
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SkillDTO> update(@Valid @RequestBody UpdateSkillDTO dto) {
         return ResponseEntity.ok(service.update(dto));
     }

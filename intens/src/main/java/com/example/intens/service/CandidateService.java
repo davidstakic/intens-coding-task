@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.intens.dto.CandidateDTO;
 import com.example.intens.dto.CreateCandidateDTO;
@@ -51,14 +52,19 @@ public class CandidateService {
         return mapToDTO(candidate);
     }
 
+	@Transactional(readOnly = true)
     public CandidateDTO getById(Long id) {
-        Candidate candidate = candidateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with ID " + id));
+        Candidate candidate = candidateRepository.findByIdWithSkills(id)
+                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with id " + id));
+        
+        System.out.println("Skills size: " + candidate.getSkills().size());
+        candidate.getSkills().forEach(s -> System.out.println("Skill: " + s.getId() + " - " + s.getName()));
 
         return mapToDTO(candidate);
     }
     
     public Page<CandidateDTO> search(String name, String skill, int page, int size) {
+    	System.out.println("NAME PARAM: '" + name + "'");
         Pageable pageable = PageRequest.of(page, size);
 
         Specification<Candidate> spec = Specification
@@ -72,7 +78,7 @@ public class CandidateService {
 
     public CandidateDTO update(UpdateCandidateDTO dto) {
         Candidate candidate = candidateRepository.findById(dto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with ID " + dto.getId()));
+                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with id " + dto.getId()));
         
         Set<Skill> skills = skillRepository.findAllById(dto.getSkillIds())
                 .stream()
@@ -92,7 +98,7 @@ public class CandidateService {
 
     public void delete(Long id) {
         Candidate candidate = candidateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with ID " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Candidate not found with id " + id));
 
         candidateRepository.delete(candidate);
     }
